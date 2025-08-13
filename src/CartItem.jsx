@@ -18,7 +18,6 @@ const CartItem = ({ onContinueShopping }) => {
       });
 
       return total;
-    }
   };
 
   const handleContinueShopping = (e) => { 
