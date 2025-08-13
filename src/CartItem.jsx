@@ -9,19 +9,17 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => { 
-      let total = 0;
+        let totalCost = 0;
 
-      cart.forEach(item => {
-        const quantity = item.quantity;
-        const cost = parseFloat(item.cost.substring(1)); // remove "$" and convert to number
-        total += quantity * cost;
-      });
+        cart.forEach((item) => {
+            const itemCost = parseItemCostToInteger(item.cost);
+            totalCost += itemCost * item.quantity;
+        });
 
-      return total;
-  };
+        return totalCost;
+    };
 
   const handleContinueShopping = (e) => { 
-    e.preventDefault();
     onContinueShopping(e); // Call the function passed as a prop to continue shopping
    
   };
@@ -31,34 +29,35 @@ const CartItem = ({ onContinueShopping }) => {
   };
 
   const handleIncrement = (item) => { 
-    dispatch(updateQuantity({
-      name: item.name,
-      quantity: item.quantity + 1
-    }));
-  };
+        const updatedItem = { ...item };
+        updatedItem.quantity++;
+        dispatch(updateQuantity(updatedItem));
+    };
 
   const handleDecrement = (item) => { 
-    if (item.quantity > 1) {
-      dispatch(updateQuantity({
-        name: item.name,
-        quantity: item.quantity - 1
-      }));
-    } else {
-      dispatch(removeItem(item.name));
-    }
-  
-   
-  };
+        const updatedItem = { ...item };
+
+        if (updatedItem.quantity == 1) {
+            // Remove item if number of items gets decremented to 0
+            dispatch(removeItem(updatedItem));
+        } else {
+            updatedItem.quantity--;
+            dispatch(updateQuantity(updatedItem));
+        }
+    };
 
   const handleRemove = (item) => {  
-    dispatch(removeItem(item.name)); 
+    dispatch(removeItem(item)); 
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {  
-    const unitPrice = parseFloat(item.cost.substring(1)); // remove "$" and convert to number
-    return item.quantity * unitPrice;
-  };
+        let totalCost = 0;
+        const itemCost = parseItemCostToInteger(item.cost);
+        totalCost = item.quantity * itemCost;
+
+        return totalCost;
+    };
 
   return (
     <div className="cart-container">
