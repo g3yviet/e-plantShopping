@@ -9,13 +9,21 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => { 
-    return cart.reduce((total, item) => total + (item.cost * item.quantity), 0);
- 
+      let total = 0;
+
+      cart.forEach(item => {
+        const quantity = item.quantity;
+        const cost = parseFloat(item.cost.substring(1)); // remove "$" and convert to number
+        total += quantity * cost;
+      });
+
+      return total;
+    }
   };
 
   const handleContinueShopping = (e) => { 
     e.preventDefault();
-    onContinueShopping(); // Call the function passed as a prop to continue shopping
+    onContinueShopping(e); // Call the function passed as a prop to continue shopping
    
   };
 
@@ -24,25 +32,33 @@ const CartItem = ({ onContinueShopping }) => {
   };
 
   const handleIncrement = (item) => { 
-    const updatedQuantity = item.quantity + 1; // Increment the quantity by 1
-    dispatch(updateQuantity({ name: item.name, quantity: updatedQuantity })); // Dispatch the action to update the quantity
+    dispatch(updateQuantity({
+      name: item.name,
+      quantity: item.quantity + 1
+    }));
   };
 
   const handleDecrement = (item) => { 
-    if (item.quantity > 1) { // Ensure quantity does not go below 1
-      const updatedQuantity = item.quantity - 1; // Decrement the quantity by 1
-      dispatch(updateQuantity({ name: item.name, quantity: updatedQuantity })); // Dispatch the action to update the quantity
+    if (item.quantity > 1) {
+      dispatch(updateQuantity({
+        name: item.name,
+        quantity: item.quantity - 1
+      }));
+    } else {
+      dispatch(removeItem(item.name));
     }
+  
    
   };
 
   const handleRemove = (item) => {  
-    dispatch(removeItem(item.name)); // Dispatch the action to remove the item from the cart
+    dispatch(removeItem(item.name)); 
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {  
-    return (parseFloat(item.cost.substring(1)) * item.quantity).toFixed(2); // Return the total cost formatted to two decimal places
+    const unitPrice = parseFloat(item.cost.substring(1)); // remove "$" and convert to number
+    return item.quantity * unitPrice;
   };
 
   return (
